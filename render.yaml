@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: snip
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: Snip
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: CACHE_TTL_SECONDS
+        value: "3600"
+      - key: DEFAULT_EXPIRY_DAYS
+        value: "30"
+      - key: RATE_LIMIT
+        value: "10/minute"

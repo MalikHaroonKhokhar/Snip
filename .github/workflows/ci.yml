@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write dummy .env (unit tests only need settings to load)
+        run: |
+          cat > .env <<EOF
+          MONGO_URI=mongodb://localhost:27017
+          MONGO_DB_NAME=ci
+          UPSTASH_REDIS_URL=redis://localhost:6379
+          BASE_URL=http://localhost:8000
+          CACHE_TTL_SECONDS=3600
+          DEFAULT_EXPIRY_DAYS=30
+          RATE_LIMIT=10/minute
+          EOF
+
+      - name: Run unit tests
+        run: pytest -m unit -v
